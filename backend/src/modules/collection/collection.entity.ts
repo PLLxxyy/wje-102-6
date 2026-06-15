@@ -33,6 +33,12 @@ export class Collection {
   @Column({ name: 'is_public', type: 'boolean', default: false })
   is_public!: boolean;
 
+  @Column({ name: 'share_token', type: 'varchar', length: 64, nullable: true, unique: true })
+  share_token!: string | null;
+
+  @Column({ name: 'shared_at', type: 'datetime', nullable: true })
+  shared_at!: Date | null;
+
   @ManyToMany(() => Recipe, (recipe) => recipe.collections)
   @JoinTable({
     name: 'collection_recipes',

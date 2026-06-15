@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { randomBytes } from 'crypto';
 import { Recipe } from '../recipe/recipe.entity';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
@@ -29,6 +30,8 @@ export class CollectionService {
       name: dto.name,
       description: dto.description ?? null,
       is_public: dto.is_public ?? false,
+      share_token: null,
+      shared_at: null,
       recipes: [],
     });
     return this.collectionRepository.save(collection);
@@ -67,6 +70,37 @@ export class CollectionService {
     collection.recipes = collection.recipes.filter((recipe) => recipe.id !== recipeId);
     await this.collectionRepository.save(collection);
     return this.findOwned(id, userId);
+  }
+
+  async share(id: number, userId: number): Promise<Collection> {
+    const collection = await this.findOwned(id, userId);
+    if (!collection.share_token) {
+      collection.share_token = randomBytes(32).toString('hex');
+      collection.shared_at = new Date();
+      collection.is_public = true;
+      await this.collectionRepository.save(collection);
+    }
+    return this.findOwned(id, userId);
+  }
+
+  async unshare(id: number, userId: number): Promise<Collection> {
+    const collection = await this.findOwned(id, userId);
+    collection.share_token = null;
+    collection.shared_at = null;
+    collection.is_public = false;
+    await this.collectionRepository.save(collection);
+    return this.findOwned(id, userId);
+  }
+
+  async findByShareToken(token: string): Promise<Collection> {
+    const collection = await this.collectionRepository.findOne({
+      where: { share_token: token },
+      relations: { recipes: { author: true }, user: true },
+    });
+    if (!collection) {
+      throw new NotFoundException('分享链接无效或已过期');
+    }
+    return collection;
   }
 
   private async findOwned(id: number, userId: number): Promise<Collection> {

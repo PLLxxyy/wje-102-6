@@ -44,4 +44,6 @@ export enum OperationAction {
   Delete = 'DELETE',
   Login = 'LOGIN',
   Logout = 'LOGOUT',
+  Share = 'SHARE',
+  Unshare = 'UNSHARE',
 }

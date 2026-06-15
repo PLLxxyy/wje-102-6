@@ -10,6 +10,7 @@ import { RecipeCreate } from '../pages/RecipeCreate';
 import { RecipeDetail } from '../pages/RecipeDetail';
 import { RecipeEdit } from '../pages/RecipeEdit';
 import { Register } from '../pages/Register';
+import { SharedCollection } from '../pages/SharedCollection';
 
 interface PrivateRouteProps {
   children: JSX.Element;
@@ -20,6 +21,10 @@ function PrivateRoute({ children }: PrivateRouteProps) {
 }
 
 export const router = createBrowserRouter([
+  {
+    path: '/share/:token',
+    element: <SharedCollection />,
+  },
   {
     path: '/',
     element: <AppShell />,

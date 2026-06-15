@@ -27,4 +27,13 @@ export const collectionApi = {
   removeRecipe(id: number, recipeId: number): Promise<Collection> {
     return unwrap(request.delete(`/collections/${id}/recipes/${recipeId}`));
   },
+  share(id: number): Promise<Collection> {
+    return unwrap(request.post(`/collections/${id}/share`));
+  },
+  unshare(id: number): Promise<Collection> {
+    return unwrap(request.post(`/collections/${id}/unshare`));
+  },
+  getShared(token: string): Promise<Collection> {
+    return unwrap(request.get(`/collections/shared/${token}`));
+  },
 };
